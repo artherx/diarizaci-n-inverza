@@ -18,3 +18,5 @@ export interface AudioSegment {
     speaker?: Speaker;
     transcript?: Transcript;
 }
+
+  
