@@ -1,33 +1,12 @@
 import "./App.css";
 import { useAudioFile } from "../utils/hooks/UseAudioFile.hook";
-import { AssemblyAI, SpeechModel } from "assemblyai";
+import { useAssemblyIA } from "../utils/hooks/assemblyIA.hook";
+import { useState } from "react";
 
 function App() {
   const { file, audioUrl, audioRef, handleFileChange } = useAudioFile();
-  const audioIA = import.meta.env.VITE_API_ASSEMBLYIA;
-
-  const client = new AssemblyAI({
-    apiKey: audioIA,
-  });
-
-  const run = async () => {
-    if (!file) {
-      console.log("No hay audio");
-      return;
-    }
-    const archive = await client.files.upload(file);
-    const params = {
-      audio: archive,
-      speech_model: "universal" as SpeechModel,
-    };
-  
-    try {
-      const transcript = await client.transcripts.transcribe(params);
-      console.log("llego: "+transcript.text);
-    } catch (error) {
-      console.error("Error transcribiendo:", error);
-    }
-  };
+  const run = useAssemblyIA(file);
+  const [language, setLanguage] = useState<string>("en");
 
   return (
     <>
@@ -40,7 +19,11 @@ function App() {
         ref={audioRef}
         src={audioUrl ?? undefined}
       />
-      <button onClick={run}>Entrenar</button>
+      <select name="" id="" onChange={(e) => setLanguage(e.target.value)}>
+        <option value="en">English</option>
+        <option value="es">Spanish</option>
+      </select>
+      <button onClick={()=>run(language)}>Entrenar</button>
     </>
   );
 }
