@@ -1,12 +1,12 @@
-interface TimeRange {
+export interface TimeRange {
   start: number
   end: number
 }
-interface Speaker {
+export interface Speaker {
     id: string
     name: string
 }
-interface Transcript {
+export interface Transcript {
     text: string
     model: "auto" | "manual"
 }
@@ -14,9 +14,9 @@ interface Transcript {
 export interface AudioSegment {
     id: number;
     type: "speaker" | "silence" | "other";
-    timeRange?: TimeRange;
-    speaker?: Speaker;
-    transcript?: Transcript;
+    timeRange: TimeRange;
+    speaker: Speaker;
+    transcript: Transcript;
 }
 
   

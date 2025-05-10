@@ -2,10 +2,13 @@ import "./App.css";
 import { useAudioFile } from "../utils/hooks/UseAudioFile.hook";
 import { useAssemblyIA } from "../utils/hooks/assemblyIA.hook";
 import { useState } from "react";
+import { TranscriptUtterance } from "assemblyai";
+import { diferenciaX } from "../utils/hooks/diferencia.hook";
+import { adapterIA } from "../utils/hooks/adapterAI.hook";
 
 function App() {
   const { file, audioUrl, audioRef, handleFileChange } = useAudioFile();
-  const run = useAssemblyIA(file);
+  const run = useAssemblyIA();
   const [language, setLanguage] = useState<string>("en");
 
   return (
@@ -23,7 +26,16 @@ function App() {
         <option value="en">English</option>
         <option value="es">Spanish</option>
       </select>
-      <button onClick={()=>run(language)}>Entrenar</button>
+      <button
+        onClick={async () => {
+          
+          const objeto = await run(file, language);
+          const newMappings = adapterIA({ proprun: { file, language_code: language }, vacion: 250, objeto });
+          console.log("Resultados de la transcripción:", newMappings);
+        }}
+      >
+        Entrenar
+      </button>
     </>
   );
 }
