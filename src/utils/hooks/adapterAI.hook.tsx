@@ -1,23 +1,31 @@
 import { TranscriptUtterance, TranscriptWord } from "assemblyai";
-import { AudioSegment, Speaker, TimeRange, Transcript } from "../interface";
+import { AudioSegment } from "../interface";
 import { diferenciaX } from "./diferencia.hook";
 
 interface propRun {
   file: File | null;
   language_code: string;
 }
-interface propaddDato {
-  id: number;
-  type: "speaker" | "other";
-  timeRange: TimeRange;
-  speaker: Speaker;
-  transcript: Transcript;
-}
 interface propAdapter {
   proprun: propRun;
   vacion: number;
   objeto: any;
 }
+const voidProp: AudioSegment = {
+  id: 0,
+  type: "silence",
+  timeRange: {
+    start: 0,
+    end: 0,
+  },
+  speaker: {
+    name: "void",
+  },
+  transcript: {
+    text: "[...]",
+    model: "auto",
+  },
+};
 
 export function adapterIA(prop: propAdapter): AudioSegment[] {
   if (!prop.proprun.file) {
@@ -32,6 +40,7 @@ export function adapterIA(prop: propAdapter): AudioSegment[] {
   console.log("Resultados de la transcripción:", result);
   result.map((utterance, indexx) => {
     const words: TranscriptWord[] = utterance.words;
+    voidProp.id = indexx;
     if (indexx === 0) {
       const currentStart = utterance.start;
       const diferencia = diferenciaX(currentStart, 0);
@@ -40,21 +49,9 @@ export function adapterIA(prop: propAdapter): AudioSegment[] {
           `Pausa inicial detectada entre: "${0}" y "${currentStart}"`
         );
         newMappings.push(
-          Void({
-            id: indexx,
-            type: "silence",
-            timeRange: {
-              start: 0,
-              end: currentStart,
-            },
-            speaker: {
-              id: utterance.confidence.toString(),
-              name: "void",
-            },
-            transcript: {
-              text: "[...]",
-              model: "auto",
-            },
+          addDato({
+            ...voidProp,
+            timeRange: { ...voidProp.timeRange, end: currentStart },
           })
         );
         console.log("Void del inicio", newMappings);
@@ -62,19 +59,18 @@ export function adapterIA(prop: propAdapter): AudioSegment[] {
     }
     newMappings.push(
       addDato({
-        id: indexx,
+        ...voidProp,
         type: "speaker",
         timeRange: {
           start: utterance.start,
           end: utterance.end,
         },
         speaker: {
-          id: utterance.confidence.toString(),
-          name: utterance.speaker ?? "noname",
+          name: "noName",
         },
         transcript: {
+          ...voidProp.transcript,
           text: utterance.text,
-          model: "auto",
         },
       })
     );
@@ -85,20 +81,11 @@ export function adapterIA(prop: propAdapter): AudioSegment[] {
         const diferencia = diferenciaX(currentEnd, nextStart);
         if (diferencia >= vacio) {
           newMappings.push(
-            Void({
-              id: word.confidence,
-              type: "silence",
+            addDato({
+              ...voidProp,
               timeRange: {
                 start: word.start,
                 end: word.end,
-              },
-              speaker: {
-                id: utterance.confidence.toString(),
-                name: "void",
-              },
-              transcript: {
-                text: "[...]",
-                model: "auto",
               },
             })
           );
@@ -120,40 +107,6 @@ export function adapterIA(prop: propAdapter): AudioSegment[] {
 
   return newMappings;
 }
-function addDato(prop: propaddDato): AudioSegment {
-  return {
-    id: prop.id,
-    type: prop.type,
-    timeRange: {
-      start: prop.timeRange.start,
-      end: prop.timeRange.end,
-    },
-    speaker: {
-      id: prop.speaker.id,
-      name: prop.speaker.name,
-    },
-    transcript: {
-      text: prop.transcript.text,
-      model: "auto",
-    },
-  };
-}
-
-function Void(prop: AudioSegment): AudioSegment {
-  return {
-    id: prop.id,
-    type: "silence",
-    timeRange: {
-      start: prop.timeRange.start,
-      end: prop.timeRange.end,
-    },
-    speaker: {
-      id: prop.speaker.name,
-      name: prop.speaker.name,
-    },
-    transcript: {
-      text: prop.transcript.text,
-      model: "auto",
-    },
-  };
+function addDato(prop: AudioSegment): AudioSegment {
+  return prop;
 }
