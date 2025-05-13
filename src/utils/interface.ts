@@ -3,7 +3,6 @@ export interface TimeRange {
   end: number
 }
 export interface Speaker {
-    id: string
     name: string
 }
 export interface Transcript {
