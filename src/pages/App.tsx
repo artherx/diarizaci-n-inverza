@@ -2,8 +2,6 @@ import "./App.css";
 import { useAudioFile } from "../utils/hooks/UseAudioFile.hook";
 import { useAssemblyIA } from "../utils/hooks/assemblyIA.hook";
 import { useState } from "react";
-import { TranscriptUtterance } from "assemblyai";
-import { diferenciaX } from "../utils/hooks/diferencia.hook";
 import { adapterIA } from "../utils/hooks/adapterAI.hook";
 
 function App() {
