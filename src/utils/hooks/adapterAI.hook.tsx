@@ -1,6 +1,6 @@
 import { TranscriptUtterance, TranscriptWord } from "assemblyai";
-import { AudioSegment } from "../interface";
-import { diferenciaX } from "./diferencia.hook";
+import { AudioSegment, VoidProp } from "../interface";
+import { diferenciaX } from "./logica.hook";
 
 interface propRun {
   file: File | null;
@@ -11,22 +11,7 @@ interface propAdapter {
   vacion: number;
   objeto: any;
 }
-const voidProp: AudioSegment = {
-  id: 0,
-  type: "silence",
-  timeRange: {
-    start: 0,
-    end: 0,
-  },
-  speaker: {
-    name: "void",
-  },
-  transcript: {
-    text: "[...]",
-    model: "auto",
-  },
-};
-
+const voidProp = VoidProp;
 export function adapterIA(prop: propAdapter): AudioSegment[] {
   if (!prop.proprun.file) {
     alert("Por favor selecciona un archivo de audio.");

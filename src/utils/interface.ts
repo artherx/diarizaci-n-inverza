@@ -18,4 +18,19 @@ export interface AudioSegment {
     transcript: Transcript;
 }
 
+export const VoidProp: AudioSegment = {
+  id: 0,
+  type: "silence",
+  timeRange: {
+    start: 0,
+    end: 0,
+  },
+  speaker: {
+    name: "void",
+  },
+  transcript: {
+    text: "[...]",
+    model: "auto",
+  },
+};
   

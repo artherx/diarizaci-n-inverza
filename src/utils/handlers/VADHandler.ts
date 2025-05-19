@@ -1,5 +1,5 @@
 import { AudioSegment } from "../interface";
-import { AbstractHandler } from "./chainResponsibiliti";
+import { AbstractHandler } from "./ChainResponsibiliti";
 
 
 export class VADHandler extends AbstractHandler {
