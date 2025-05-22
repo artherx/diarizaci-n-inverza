@@ -4,9 +4,7 @@ import { useAssemblyIA } from "../utils/hooks/assemblyIA.hook";
 import { useState } from "react";
 import { adapterIA } from "../utils/hooks/adapterAI.hook";
 import AudioPlayer from "../assets/AudioPlayer";
-import { CustomSlider } from "../assets/CustomSlider";
 import { AudioSegment, VoidProp } from "../utils/interface";
-import { FaPlay } from "react-icons/fa6";
 const algo: AudioSegment = {
   ...VoidProp,
   id: 1,
@@ -21,7 +19,7 @@ const algo: AudioSegment = {
 };
 const algo1: AudioSegment = { ...VoidProp };
 
-const matris: AudioSegment[] = [algo, algo1];
+const matris: AudioSegment[] = [];
 function App() {
   const { file, audioUrl, handleFileChange } = useAudioFile();
   const run = useAssemblyIA();
@@ -30,19 +28,9 @@ function App() {
   return (
     <div className="flex flex-col items-center justify-between gap-10 ">
       <h1>Hello World</h1>
-      <div className="flex items-center gap-1">
-        <button>
-          <FaPlay onClick={() => console.log("click")} />
-        </button>
-        <p className="text-[.5rem]">00:00</p>
-
-        <CustomSlider data={matris} tiemTol={200} />
-
-        <p className="text-[.5rem]">00:00</p>
-      </div>
       <input type="file" accept="audio/*" onChange={handleFileChange} />
 
-      <AudioPlayer audioUrl={audioUrl} />
+      <AudioPlayer audioUrl={audioUrl} matris={matris} />
       <select name="" id="" onChange={(e) => setLanguage(e.target.value)}>
         <option value="en">English</option>
         <option value="es">Spanish</option>
@@ -55,7 +43,10 @@ function App() {
             vacion: 250,
             objeto,
           });
-          console.log("Resultados de la transcripción:", newMappings);
+          console.log("Resultados de la transcripción:", newMappings.length);
+          newMappings.map((item) => {
+            matris.push(item);
+          });
         }}
       >
         Entrenar

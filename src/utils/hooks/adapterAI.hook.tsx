@@ -1,6 +1,6 @@
 import { TranscriptUtterance, TranscriptWord } from "assemblyai";
 import { AudioSegment, VoidProp } from "../interface";
-import { diferenciaX } from "./logica.hook";
+import { diferenciaX, MilisegundostoSecongs } from "./logica.hook";
 
 interface propRun {
   file: File | null;
@@ -36,7 +36,10 @@ export function adapterIA(prop: propAdapter): AudioSegment[] {
         newMappings.push(
           addDato({
             ...voidProp,
-            timeRange: { ...voidProp.timeRange, end: currentStart },
+            timeRange: {
+              ...voidProp.timeRange,
+              end: MilisegundostoSecongs(currentStart),
+            },
           })
         );
         console.log("Void del inicio", newMappings);
@@ -47,8 +50,8 @@ export function adapterIA(prop: propAdapter): AudioSegment[] {
         ...voidProp,
         type: "speaker",
         timeRange: {
-          start: utterance.start,
-          end: utterance.end,
+          start: MilisegundostoSecongs(utterance.start),
+          end: MilisegundostoSecongs(utterance.end),
         },
         speaker: {
           name: "noName",
@@ -69,8 +72,8 @@ export function adapterIA(prop: propAdapter): AudioSegment[] {
             addDato({
               ...voidProp,
               timeRange: {
-                start: word.start,
-                end: word.end,
+                start: MilisegundostoSecongs(word.start),
+                end: MilisegundostoSecongs(word.end),
               },
             })
           );
