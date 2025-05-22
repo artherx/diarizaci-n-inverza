@@ -6,12 +6,21 @@ import { adapterIA } from "../utils/hooks/adapterAI.hook";
 import AudioPlayer from "../assets/AudioPlayer";
 import { CustomSlider } from "../assets/CustomSlider";
 import { AudioSegment, VoidProp } from "../utils/interface";
-const algo = { ...VoidProp };
-const algo1 = { ...VoidProp };
-algo.type = "speaker";
-algo1.id = 1;
-algo.timeRange.start = 0;
-algo.timeRange.end = 100;
+import { FaPlay } from "react-icons/fa6";
+const algo: AudioSegment = {
+  ...VoidProp,
+  id: 1,
+  timeRange: {
+    start: 10,
+    end: 20,
+  },
+  speaker: {
+    name: "Juan",
+  },
+  type: "speaker",
+};
+const algo1: AudioSegment = { ...VoidProp };
+
 const matris: AudioSegment[] = [algo, algo1];
 function App() {
   const { file, audioUrl, handleFileChange } = useAudioFile();
@@ -22,6 +31,9 @@ function App() {
     <div className="flex flex-col items-center justify-between gap-10 ">
       <h1>Hello World</h1>
       <div className="flex items-center gap-1">
+        <button>
+          <FaPlay onClick={() => console.log("click")} />
+        </button>
         <p className="text-[.5rem]">00:00</p>
 
         <CustomSlider data={matris} tiemTol={200} />

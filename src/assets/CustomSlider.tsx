@@ -7,7 +7,6 @@ interface Props {
 }
 
 export const CustomSlider = ({ data, tiemTol = 100 }: Props) => {
-  const dataIn = data;
   const containerRef = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState(0); // valor entre 0 y 100
   const [isDragging, setIsDragging] = useState(false);
@@ -38,8 +37,7 @@ export const CustomSlider = ({ data, tiemTol = 100 }: Props) => {
     setIsDragging(false);
     setX(null);
   };
-  
-        console.log(dataIn.length);
+
   return (
     <div
       ref={containerRef}
@@ -49,20 +47,21 @@ export const CustomSlider = ({ data, tiemTol = 100 }: Props) => {
       onMouseMove={handleMouseMove}
       className="relative w-[20rem] h-[1rem] cursor-pointer"
     >
-      {
-      dataIn.map((item, index) => {
-        console.log( item);
-        return (
-          <div className="retalive w-full bg-amber-200" key={index}>
+      <div className="retalive w-full" >
+  
+        {data.map((item, index) => {
+          return (
+            console.log(item.timeRange.start),
             <Sentences
               type="close"
               typespeker={item.type}
               post={item.timeRange.start}
               total={tiemTol}
+              key={index}
             />
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
       {/* barra de fondo */}
       <div className="absolute top-1/2 left-0 w-full h-[0.3rem] bg-gray-400 rounded-full transform -translate-y-1/2">
         {x !== null && (
