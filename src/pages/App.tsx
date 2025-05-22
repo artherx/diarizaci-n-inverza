@@ -5,19 +5,26 @@ import { useState } from "react";
 import { adapterIA } from "../utils/hooks/adapterAI.hook";
 import AudioPlayer from "../assets/AudioPlayer";
 import { AudioSegment, VoidProp } from "../utils/interface";
+import { MilisegundostoSecongs } from "../utils/hooks/logica.hook";
 const algo: AudioSegment = {
   ...VoidProp,
   id: 1,
   timeRange: {
-    start: 10,
-    end: 20,
+    start: 5,
+    end: 40,
   },
   speaker: {
     name: "Juan",
   },
   type: "speaker",
 };
-const algo1: AudioSegment = { ...VoidProp };
+const algo1: AudioSegment = { ...VoidProp,
+  
+  timeRange: {
+    start: 30,
+    end: 45,
+  },
+ };
 
 const matris: AudioSegment[] = [];
 function App() {
@@ -37,6 +44,7 @@ function App() {
       </select>
       <button
         onClick={async () => {
+          console.log("Ejecutando la IA");
           const objeto = await run(file, language);
           const newMappings = adapterIA({
             proprun: { file, language_code: language },
@@ -44,8 +52,14 @@ function App() {
             objeto,
           });
           console.log("Resultados de la transcripción:", newMappings.length);
-          newMappings.map((item) => {
+          newMappings.map((item, index) => {
             matris.push(item);
+            matris[index].timeRange.start = MilisegundostoSecongs(
+              item.timeRange.start
+            );
+            matris[index].timeRange.end = MilisegundostoSecongs(
+              item.timeRange.end
+            );
           });
         }}
       >

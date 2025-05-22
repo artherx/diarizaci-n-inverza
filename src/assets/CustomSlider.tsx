@@ -9,7 +9,7 @@ interface Props {
 
 export const CustomSlider = ({ data, tiemTol = 100, progress }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [value, setValue] = useState(0); 
+  const [value, setValue] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [x, setX] = useState<number | null>(null);
 
@@ -59,13 +59,20 @@ export const CustomSlider = ({ data, tiemTol = 100, progress }: Props) => {
           data.length > 0 &&
           data.map((item, index) => {
             return (
-              <Sentences
-                type="close"
-                typespeker={item.type}
-                post={item.timeRange.start}
-                total={tiemTol}
-                key={index}
-              />
+              <div key={index}>
+                <Sentences
+                  type="close"
+                  typespeker={item.type}
+                  post={item.timeRange.start}
+                  total={tiemTol}
+                />
+                <Sentences
+                  type={"open"}
+                  typespeker={item.type}
+                  post={item.timeRange.end}
+                  total={tiemTol}
+                />
+              </div>
             );
           })}
       </div>
