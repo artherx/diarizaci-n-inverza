@@ -13,7 +13,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, matris }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(100);
 
   const togglePlay = () => {
     const audio = audioRef.current;
