@@ -42,15 +42,6 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl }) => {
     }
   };
 
-  const handleProgressChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current;
-    const newProgress = parseFloat(e.target.value);
-    if (!audio || isNaN(audio.duration)) return;
-
-    audio.currentTime = (newProgress / 100) * audio.duration;
-    setProgress(newProgress);
-  };
-
   useEffect(() => {
     const audio = audioRef.current;
     return () => {

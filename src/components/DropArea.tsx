@@ -13,7 +13,7 @@ const DropArea: React.FC = () => {
       <div className="flex gap-4 mt-2">
         <label className="bg-amber-400 hover:bg-amber-500 text-gray-900 px-4 py-1 rounded cursor-pointer font-semibold transition">
           Reemplazar
-          <input type="file" accept="audio/*" onChange={handleFileChange} className="hidden" />
+          <input type="file"  onChange={handleFileChange} className="hidden" />
         </label>
         <button onClick={clearFile} className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded font-semibold transition">Quitar</button>
       </div>
@@ -29,7 +29,7 @@ const DropArea: React.FC = () => {
       <span className="text-amber-200 mb-1">Arrastra tu archivo aquí</span>
       <label className="flex flex-col items-center cursor-pointer bg-gray-800 hover:bg-gray-700 text-amber-200 px-6 py-2 rounded-lg shadow transition mt-2">
         <span className="mb-1">o selecciona un archivo de audio</span>
-        <input type="file" accept="audio/*" onChange={handleFileChange} className="hidden" />
+        <input type="file" onChange={handleFileChange} className="hidden" />
       </label>
     </div>
   );

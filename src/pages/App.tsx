@@ -1,15 +1,13 @@
 import "./App.css";
-import { useAssemblyIA } from "../utils/hooks/assemblyIA.hook";
-import { adapterIA } from "../utils/hooks/adapterAI.hook";
 import AudioPlayer from "../assets/AudioPlayer";
 import BarraSuperior from "../components/BarraSuperior";
 import DropArea from "../components/DropArea";
 import SegmentList from "../components/SegmentList";
 import { useAudioStore } from "../utils/hooks/useAudioStore";
 import { useUIStore } from "../utils/hooks/useUIStore";
+import { useFastAPI, adaptFastAPIResponse } from "../utils/hooks";
 
 function App() {
-  const run = useAssemblyIA();
   // Usar los stores especializados
   const {
     file,
@@ -24,11 +22,23 @@ function App() {
     setIsTraining,
     setSelectedIndex,
   } = useUIStore();
+  
+  const {
+    isLoading: fastAPILoading,
+    error: fastAPIError,
+    response: fastAPIResponse,
+    uploadAudio,
+  } = useFastAPI();
 
   return (
     <div className="w-full h-screen bg-gradient-to-br from-gray-900 to-gray-700 flex flex-col items-center justify-start gap-4 p-0">
       <BarraSuperior />
       <p className="text-gray-300 mb-2">Sube o arrastra un archivo de audio y obtén la transcripción segmentada por hablante y silencios.</p>
+      {fastAPIError && (
+        <div className="bg-red-500 text-white px-4 py-2 rounded-lg">
+          Error: {fastAPIError}
+        </div>
+      )}
       <DropArea />
       {hasFile && <AudioPlayer audioUrl={audioUrl} />}
       <div className="flex gap-4 items-center mb-2">
@@ -49,31 +59,38 @@ function App() {
           
           try {
             setIsTraining(false);
-            console.log("Ejecutando la IA");
-            const objeto = await run(file, language);
-            const newMappings = adapterIA({
-              proprun: { file, language_code: language },
-              vacion: 250,
-              objeto,
-            });
-            console.log("Resultados de la transcripción:", newMappings.length);
+            console.log("🎯 Iniciando proceso en App.tsx");
+            console.log("📤 Enviando archivo al servidor FastAPI");
             
-            // Los segmentos ya están procesados y en el store
+            // Obtener la respuesta directamente del hook
+            const response = await uploadAudio(file);
+            console.log("📥 Respuesta directa en App:", response);
+            
+            if (response) {
+              console.log("🔄 Adaptando respuesta...");
+              const newMappings = adaptFastAPIResponse(response);
+              console.log("✅ Resultados del servidor FastAPI:", newMappings.length);
+              console.log("📊 Segmentos:", newMappings);
+              
+              // Establecer el último segmento como seleccionado
+              const tam = newMappings.length > 0 ? newMappings.length - 1 : 0;
+              setSelectedIndex(tam);
+            } else {
+              console.log("⚠️ No hay respuesta del servidor");
+            }
+            
             setIsTraining(true);
-            
-            // Establecer el último segmento como seleccionado
-            const tam = newMappings.length > 0 ? newMappings.length - 1 : 0;
-            setSelectedIndex(tam);
           } catch (error) {
-            alert(error);
+            const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+            alert(errorMessage);
             setIsTraining(true);
           }
         }}
       >
-        {isTraining ? "Entrenar" : (
+        {isTraining ? "Procesar con FastAPI" : (
           <span className="flex items-center gap-2">
             <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
-            Entrenando...
+            Procesando...
           </span>
         )}
       </button>
