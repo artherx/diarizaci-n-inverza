@@ -1,83 +1,54 @@
 import "./App.css";
-import { useAudioFile } from "../utils/hooks/UseAudioFile.hook";
 import { useAssemblyIA } from "../utils/hooks/assemblyIA.hook";
-import { useState } from "react";
 import { adapterIA } from "../utils/hooks/adapterAI.hook";
 import AudioPlayer from "../assets/AudioPlayer";
-import { AudioSegment } from "../utils/interface";
-import { MilisegundostoSecongs } from "../utils/hooks/logica.hook";
-import { Modal } from "../assets/Modal";
-const algo: AudioSegment = {
-  id: 0,
-  type: "silence",
-  timeRange: {
-    start: 0,
-    end: 1,
-  },
-  speaker: {
-    name: "void",
-  },
-  transcript: {
-    text: "[...]",
-    model: "auto",
-  },
-};
-const algo1: AudioSegment = {
-  id: 0,
-  type: "speaker",
-  timeRange: {
-    start: 1,
-    end: 5,
-  },
-  speaker: {
-    name: "A",
-  },
-  transcript: {
-    text: "Estoy asustando",
-    model: "auto",
-  },
-};
-const matris: AudioSegment[] = [algo, algo1];
+import BarraSuperior from "../components/BarraSuperior";
+import DropArea from "../components/DropArea";
+import SegmentList from "../components/SegmentList";
+import { useAudioStore } from "../utils/hooks/useAudioStore";
+import { useUIStore } from "../utils/hooks/useUIStore";
+
 function App() {
-  const { file, audioUrl, handleFileChange } = useAudioFile();
   const run = useAssemblyIA();
-  const [language, setLanguage] = useState<string>("en");
-  const [lerning, setLerning] = useState<boolean>(true);
-  const [modal, setModal] = useState<boolean>(false);
-  const [segments, setSegments] = useState<AudioSegment[]>([algo, algo1]);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const updateSegmentText = (text: string) => {
-    if (selectedIndex === null) return;
-    const updated = [...segments];
-    updated[selectedIndex].transcript.text = text;
-    setSegments(updated);
-  };
-
-  const handleOpenModal = (index: number) => {
-    setSelectedIndex(index);
-    setModal(true);
-  };
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (selectedIndex === null) return;
-    const updated = [...segments];
-    updated[selectedIndex].transcript.text = e.target.value;
-    setSegments(updated);
-  };
+  // Usar los stores especializados
+  const {
+    file,
+    audioUrl,
+    hasFile,
+  } = useAudioStore();
+  
+  const {
+    language,
+    isTraining,
+    setLanguage,
+    setIsTraining,
+    setSelectedIndex,
+  } = useUIStore();
 
   return (
-    <div className="flex flex-col items-center justify-between gap-10 ">
-      <h1>Hello World</h1>
-      <input type="file" accept="audio/*" onChange={handleFileChange} />
-      <AudioPlayer audioUrl={audioUrl} matris={matris} />
-      <select name="" id="" onChange={(e) => setLanguage(e.target.value)}>
-        <option value="en">English</option>
-        <option value="es">Spanish</option>
-      </select>
+    <div className="w-full h-screen bg-gradient-to-br from-gray-900 to-gray-700 flex flex-col items-center justify-start gap-4 p-0">
+      <BarraSuperior />
+      <p className="text-gray-300 mb-2">Sube o arrastra un archivo de audio y obtén la transcripción segmentada por hablante y silencios.</p>
+      <DropArea />
+      {hasFile && <AudioPlayer audioUrl={audioUrl} />}
+      <div className="flex gap-4 items-center mb-2">
+        <label htmlFor="language" className="text-gray-200">Idioma:</label>
+        <select id="language" className="bg-gray-800 text-amber-200 px-3 py-1 rounded" onChange={(e) => setLanguage(e.target.value)}>
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+        </select>
+      </div>
       <button
+        className={`px-6 py-2 rounded-lg font-semibold shadow transition text-white ${isTraining ? 'bg-amber-400 hover:bg-amber-500' : 'bg-gray-500 cursor-not-allowed animate-pulse'}`}
+        disabled={!isTraining}
         onClick={async () => {
+          if (!hasFile) {
+            alert("Por favor selecciona un archivo de audio primero.");
+            return;
+          }
+          
           try {
-            setLerning(false);
+            setIsTraining(false);
             console.log("Ejecutando la IA");
             const objeto = await run(file, language);
             const newMappings = adapterIA({
@@ -86,79 +57,27 @@ function App() {
               objeto,
             });
             console.log("Resultados de la transcripción:", newMappings.length);
-            newMappings.map((item, index) => {
-              matris.push(item);
-              matris[index].timeRange.start = MilisegundostoSecongs(
-                item.timeRange.start
-              );
-              matris[index].timeRange.end = MilisegundostoSecongs(
-                item.timeRange.end
-              );
-            });
-
-            setLerning(true);
+            
+            // Los segmentos ya están procesados y en el store
+            setIsTraining(true);
+            
+            // Establecer el último segmento como seleccionado
+            const tam = newMappings.length > 0 ? newMappings.length - 1 : 0;
+            setSelectedIndex(tam);
           } catch (error) {
             alert(error);
+            setIsTraining(true);
           }
         }}
       >
-        {lerning ? "Entrenar" : "entrenando"}
-      </button>
-      <div
-        style={{
-          width: "300px",
-          height: "200px",
-          overflow: "auto",
-          border: "1px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {segments.length > 0 ? (
-          segments.map((item, index) => {
-            return item.type === "silence" ? (
-              <div
-                className="w-fit"
-                onClick={() => {
-                  handleOpenModal(index);
-                }}
-                key={index}
-              >
-                <p className="hover:transition hover:text-amber-300">
-                  {item.transcript.text}
-                </p>
-              </div>
-            ) : (
-              <p key={index}>{item.transcript.text}</p>
-            );
-          })
-        ) : (
-          <p>{}</p>
+        {isTraining ? "Entrenar" : (
+          <span className="flex items-center gap-2">
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+            Entrenando...
+          </span>
         )}
-        <Modal isOpen={modal} onClose={() => setModal(false)}>
-          {selectedIndex !== null && (
-            <div className="flex flex-col gap-4">
-              <h1 className="text-white text-xl">Editar Segmento</h1>
-              <input
-                className="p-2 rounded"
-                type="text"
-                value={segments[selectedIndex].transcript.text}
-                onChange={handleTextChange}
-              />
-              <button
-                onClick={() => {
-                  updateSegmentText(segments[selectedIndex].transcript.text);
-                  setModal(false)
-                }}
-                className="bg-green-500 px-4 py-2 rounded"
-              >
-                Guardar
-              </button>
-            </div>
-          )}
-        </Modal>
-      </div>
+      </button>
+      <SegmentList />
     </div>
   );
 }

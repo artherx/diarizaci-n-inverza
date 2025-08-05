@@ -17,10 +17,19 @@ export const useAudioFile = () => {
     }
   };
 
+  const clearFile = () => {
+    setFile(null);
+    setAudioUrl(null);
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+  };
+
   return {
     file,         // <-- úsalo para AssemblyAI
     audioUrl,     // <-- úsalo en el <audio />
     audioRef,
     handleFileChange,
+    clearFile,
   };
 };

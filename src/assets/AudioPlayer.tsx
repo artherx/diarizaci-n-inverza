@@ -1,15 +1,14 @@
 import React, { useRef, useState, useEffect, ChangeEvent } from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 import { CustomSlider } from "./CustomSlider";
-import { AudioSegment } from "../utils/interface";
+import { useSegmentStore } from "../utils/hooks/UseStoreJson";
 
 interface AudioPlayerProps {
-  matris?: AudioSegment[];
-  audioUrl: string | null;
+  audioUrl: string;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, matris }) => {
-  const matrisData = matris ?? [];
+const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl }) => {
+  const { segments } = useSegmentStore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
@@ -66,7 +65,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, matris }) => {
     <div className="flex items-center gap-1">
       <audio
         ref={audioRef}
-        src={audioUrl ?? undefined}
+        src={audioUrl}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         preload="auto"
@@ -78,7 +77,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioUrl, matris }) => {
 
       <p className="text-[.5rem]">{progress.toFixed(2)}%</p>
 
-      <CustomSlider data={matrisData} tiemTol={duration} progress={progress} />
+      <CustomSlider data={segments} tiemTol={duration} progress={progress} />
 
       <p className="text-[.5rem]">{duration.toFixed(2)}s</p>
     </div>
